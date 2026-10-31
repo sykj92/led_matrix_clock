@@ -338,17 +338,20 @@ def icon_for_code(code):
     return "unknown"
 
 
+def draw_glyph(draw, glyph, left, top=0):
+    """Draw a bitmap glyph at the given coordinates."""
+    for y, row in enumerate(glyph):
+        for x, bit in enumerate(row):
+            if bit == "1":
+                draw.point((left + x, top + y), fill=1)
+
+
 def make_clock_image(hhmm):
     image = Image.new("1", (WIDTH, HEIGHT), 0)
-    pixels = image.load()
+    draw = ImageDraw.Draw(image)
     for digit_index, character in enumerate(hhmm):
-        glyph = DIGITS[character]
-        x0 = digit_index * 8 + 1  # 5 px wide, centered within each 8x8 matrix.
-        y0 = 0                  # seven rows fill the matrix height.
-        for y, row in enumerate(glyph):
-            for x, bit in enumerate(row):
-                if bit == "1":
-                    pixels[x0 + x, y0 + y] = 1
+        # Each 5px digit is centered within its 8px matrix.
+        draw_glyph(draw, DIGITS[character], digit_index * 8 + 1)
     return image
 
 
@@ -363,10 +366,7 @@ def make_centered_lines(lines):
         for char in line:
             glyph = TINY.get(char)
             if glyph:
-                for yy, row in enumerate(glyph):
-                    for xx, bit in enumerate(row):
-                        if bit == "1":
-                            draw.point((cursor + xx, top + yy), fill=1)
+                draw_glyph(draw, glyph, cursor, top)
             cursor += 3
     return image
 
@@ -411,17 +411,11 @@ def make_date_text_image(text):
         width = len(text) * 5 + (len(text) - 1) * 8
         cursor = max(0, (WIDTH - width) // 2)
         for index, character in enumerate(text):
-            for yy, row in enumerate(DATE_LETTERS[character]):
-                for xx, bit in enumerate(row):
-                    if bit == "1":
-                        draw.point((cursor + xx, yy), fill=1)
+            draw_glyph(draw, DATE_LETTERS[character], cursor)
             cursor += 5
             if index < len(text) - 1:
                 cursor += 3  # Three blank pixels between the letter and the 2x2 dot.
-                for yy, row in enumerate(WEATHER_GLYPHS["°"]):
-                    for xx, bit in enumerate(row):
-                        if bit == "1":
-                            draw.point((cursor + xx, 3 + yy), fill=1)
+                draw_glyph(draw, WEATHER_GLYPHS["°"], cursor, 3)
                 cursor += 5  # Two-pixel dot plus three blank pixels before the next letter.
         return image
 
@@ -432,10 +426,7 @@ def make_date_text_image(text):
         glyph_cursor = cursor + (1 if text == "25 OCT" and index < 2 else 0)
         glyph = DIGITS.get(character) or DATE_LETTERS.get(character)
         if glyph:
-            for yy, row in enumerate(glyph):
-                for xx, bit in enumerate(row):
-                    if bit == "1":
-                        draw.point((glyph_cursor + xx, yy), fill=1)
+            draw_glyph(draw, glyph, glyph_cursor)
         cursor += 3 if character == " " else 6
     return image
 
@@ -443,12 +434,6 @@ def make_date_text_image(text):
 def make_weather_image(data, page):
     image = Image.new("1", (WIDTH, HEIGHT), 0)
     draw = ImageDraw.Draw(image)
-
-    def draw_glyph(glyph, left, top=0):
-        for yy, row in enumerate(glyph):
-            for xx, bit in enumerate(row):
-                if bit == "1":
-                    draw.point((left + xx, top + yy), fill=1)
 
     def value_glyph(character):
         if character == "-":
@@ -572,10 +557,7 @@ def make_sun_event_image(event, value):
     icon = SUNRISE_ARROW if event == "sunrise" else SUNSET_ARROW
     icon_image = Image.new("1", (5, 7), 0)
     icon_draw = ImageDraw.Draw(icon_image)
-    for y, row in enumerate(icon):
-        for x, bit in enumerate(row):
-            if bit == "1":
-                icon_draw.point((x, y), fill=1)
+    draw_glyph(icon_draw, icon, 0)
     image.paste(icon_image, (1, 0))
 
     text_left = 9  # Leave one pixel between the icon and time.
@@ -584,10 +566,7 @@ def make_sun_event_image(event, value):
     for character in value:
         glyph = DIGITS.get(character) or SUN_TIME_GLYPHS.get(character)
         if glyph:
-            for yy, row in enumerate(glyph):
-                for xx, bit in enumerate(row):
-                    if bit == "1":
-                        draw.point((cursor + xx, yy), fill=1)
+            draw_glyph(draw, glyph, cursor)
         cursor += 6
     return image
 
@@ -618,18 +597,12 @@ def make_metal_image(data, metal):
     total_width = label_width + 3 + price_width
     cursor = (WIDTH - total_width) // 2
 
-    for y, row in enumerate(label):
-        for x, bit in enumerate(row):
-            if bit == "1":
-                draw.point((cursor + x, y), fill=1)
+    draw_glyph(draw, label, cursor)
     cursor += label_width + 3
     for index, character in enumerate(price):
         glyph = DIGITS.get(character)
         if glyph:
-            for y, row in enumerate(glyph):
-                for x, bit in enumerate(row):
-                    if bit == "1":
-                        draw.point((cursor + x, y), fill=1)
+            draw_glyph(draw, glyph, cursor)
         cursor += 5
         if index < len(price) - 1:
             cursor += 1
