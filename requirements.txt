@@ -1,2 +1,3 @@
-luma.led-matrix
+luma.led_matrix
+luma.core
 Pillow

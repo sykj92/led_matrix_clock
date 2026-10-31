@@ -1,0 +1,30 @@
+{
+  "display": {
+    "cascaded_modules": 4,
+    "block_orientation": -90,
+    "rotate": 0,
+    "initial_contrast": 8
+  },
+  "location": {
+    "latitude": 47.0707,
+    "longitude": 15.4395
+  },
+  "api": {
+    "weather_forecast_url": "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,cloud_cover,is_day&hourly=temperature_2m,precipitation_probability&past_hours=1&daily=sunrise,sunset&temperature_unit=celsius&timezone=Europe%2FVienna",
+    "exchange_rates_url": "https://open.er-api.com/v6/latest/USD",
+    "metal_price_url": "https://api.gold-api.com/price/{symbol}"
+  },
+  "timing": {
+    "weather_refresh_seconds": 720,
+    "weather_timeout_seconds": 5,
+    "metals_timeout_seconds": 5,
+    "screen_slot_seconds": 12,
+    "transition_seconds": 1.5
+  },
+  "brightness": {
+    "night_contrast": 2,
+    "overcast_day_contrast": 9,
+    "clear_day_contrast": 12,
+    "twilight_ramp_minutes": 30
+  }
+}
